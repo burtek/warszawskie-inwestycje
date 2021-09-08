@@ -3,13 +3,13 @@ import Link from 'next/link';
 
 export function EntryCard({ id, title, image, content }: Props) {
     return (
-        <div className='card card-hullheight mt-2 p-relative'>
+        <div className='card card-fullheight mt-2 p-relative'>
             <div className='card-header'>
                 <div className='card-title h5'>{title}</div>
             </div>
             {image && (
                 <div className='card-image'>
-                    <Image src={image} className='img-responsive' alt={title} placeholder='blur' />
+                    <Image src={image} className='img-responsive' alt={title} placeholder='blur' objectFit='cover' />
                 </div>
             )}
             {content && <div className='card-body'>{content}</div>}

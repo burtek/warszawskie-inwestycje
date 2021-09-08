@@ -9,6 +9,10 @@ import Image_e9516499 from '../images/e9516499-a81a-43ac-92c8-b077af972715.jpg';
 export const data: Data = {
     changes: [
         {
+            date: '2021-09-08T19:30:00Z',
+            description: 'Rozszerzenie tematu linii średnicowej'
+        },
+        {
             date: '2021-09-08T14:00:00Z',
             description: 'Przeniesienie ze Slacka do internetu'
         },
@@ -243,8 +247,9 @@ Plac ma być przyjazny pieszym i naturze, pojawią się [22 drzewa](https://www.
         'f00c4899-5363-42ad-bf62-70d3e55ab435': {
             id: 'f00c4899-5363-42ad-bf62-70d3e55ab435',
             title: 'Prace na linii średnicowej',
-            markdownContent:
-                'Prace będą prowadzone równolegle z przebudową al. Jerozolimskich. [Zrezygnowano z zabudowy nad torami na odcinku Warszawa Ochota - Warszawa Śródmieście](https://www.transport-publiczny.pl/wiadomosci/przebudowa-linii-srednicowej-bez-mozliwosci-zabudowy-nad-torami-67205.html)',
+            markdownContent: `Prace będą prowadzone równolegle z przebudową al. Jerozolimskich. [Zrezygnowano z zabudowy nad torami na odcinku Warszawa Ochota - Warszawa Śródmieście](https://www.transport-publiczny.pl/wiadomosci/przebudowa-linii-srednicowej-bez-mozliwosci-zabudowy-nad-torami-67205.html)
+                
+                [Trwa ustalanie szczegółów koordynacji obu inwestycji](https://www.transport-publiczny.pl/wiadomosci/przebudowa-srednicy-wiceprezydent-olszewski-sporo-tematow-do-uzgodnienia-z-koleja-70310.html). W ramach prac zbudowany zostanie między innymi łącznik między metrem, a Dworcem Śródmieście.`,
             subEntries: [],
             links: []
         },
@@ -456,7 +461,7 @@ Prace nad centralnym odcinkiem III linii metra mają potrwać do 2028/2030 roku`
         },
         'c2de8d03-175a-41ed-9b9f-78bf3c65c227': {
             id: 'c2de8d03-175a-41ed-9b9f-78bf3c65c227',
-            title: 'Wiadukty na Tracie Łazienkowskiej',
+            title: 'Wiadukty na Trasie Łazienkowskiej',
             markdownContent:
                 'Prace ([realizowane przez Skanska](https://www.rynekinfrastruktury.pl/wiadomosci/drogi/skanska-z-umowa-na-wiadukty-trasy-lazienkowskiej-w-warszawie-77332.html)) [rozpoczęły się w sierpniu 2021](https://www.rynekinfrastruktury.pl/wiadomosci/drogi/przebudowa-wiaduktow-trasy-lazienkowskiej--pierwsze-prace-77825.html) i mają potrwać do marca 2024',
             subEntries: ['d71c9875-52f9-44f9-8286-7b1e2655f130'],

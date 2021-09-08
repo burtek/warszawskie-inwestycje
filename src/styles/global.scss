@@ -27,10 +27,14 @@ ul.link-list {
     }
 }
 
-.card-hullheight {
+.card-fullheight {
     height: calc(100% - 8px);
 
     .card-image {
         flex: 1;
+
+        & > div {
+            height: 100%;
+        }
     }
 }
