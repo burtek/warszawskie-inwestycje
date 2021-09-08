@@ -9,8 +9,8 @@ import Image_e9516499 from '../images/e9516499-a81a-43ac-92c8-b077af972715.jpg';
 export const data: Data = {
     changes: [
         {
-            date: '2021-09-08T19:30:00Z',
-            description: 'Rozszerzenie tematu linii średnicowej'
+            date: '2021-09-08T19:40:00Z',
+            description: 'Rozszerzenie tematu linii średnicowej + przebudowa Pola Mokotowskiego'
         },
         {
             date: '2021-09-08T14:00:00Z',
@@ -450,11 +450,15 @@ Prace nad centralnym odcinkiem III linii metra mają potrwać do 2028/2030 roku`
             id: 'd71c9875-52f9-44f9-8286-7b1e2655f130',
             title: 'Pole Mokotowskie',
             markdownContent:
-                'Otwarto oferty w przetargu, ale [do tej pory nie ogłoszono zwycięzcy](https://tvn24.pl/tvnwarszawa/najnowsze/warszawa-staw-na-polu-mokotowskim-jak-kaluza-urzednicy-tlumacza-dlaczego-nie-wypelnili-go-w-pelni-woda-5198941). Prace wstępnie miały trwać do listopada 2022',
+                '[Prace ruszą na przełomie września i października](http://zzw.waw.pl/2021/09/08/znamy-wykonawce-modernizacji-parku-pole-mokotowskie/). Prace mają trwać do listopada 2022.',
             subEntries: [],
             links: [
                 {
                     label: 'Informacja na stronie Zarządu Zieleni',
+                    url: 'http://zzw.waw.pl/2021/09/08/znamy-wykonawce-modernizacji-parku-pole-mokotowskie/'
+                },
+                {
+                    label: 'Poprzednia informacja na stronie Zarządu Zieleni',
                     url: 'http://zzw.waw.pl/2021/05/28/nowe-pole-mokotowskie-juz-wkrotce-oglosilismy-przetarg/'
                 }
             ]
