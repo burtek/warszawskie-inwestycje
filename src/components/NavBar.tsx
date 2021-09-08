@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export function NavBar({ appTitle, current }: Props) {
+export function NavBar({ appTitle /*, current*/ }: Props) {
     return (
         <div className='container'>
             <header className='navbar'>
@@ -10,7 +10,7 @@ export function NavBar({ appTitle, current }: Props) {
                     </Link>
                 </section>
 
-                <section className='navbar-section'>
+                {/* <section className='navbar-section'>
                     <ul className='breadcrumb'>
                         <li className='breadcrumb-item'>
                             <Link href='/'>
@@ -27,7 +27,7 @@ export function NavBar({ appTitle, current }: Props) {
                     </ul>
                 </section>
 
-                <section className='navbar-section hide-md' />
+                <section className='navbar-section hide-md' /> */}
             </header>
         </div>
     );

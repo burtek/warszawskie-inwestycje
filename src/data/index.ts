@@ -248,8 +248,8 @@ Plac ma być przyjazny pieszym i naturze, pojawią się [22 drzewa](https://www.
             id: 'f00c4899-5363-42ad-bf62-70d3e55ab435',
             title: 'Prace na linii średnicowej',
             markdownContent: `Prace będą prowadzone równolegle z przebudową al. Jerozolimskich. [Zrezygnowano z zabudowy nad torami na odcinku Warszawa Ochota - Warszawa Śródmieście](https://www.transport-publiczny.pl/wiadomosci/przebudowa-linii-srednicowej-bez-mozliwosci-zabudowy-nad-torami-67205.html)
-                
-                [Trwa ustalanie szczegółów koordynacji obu inwestycji](https://www.transport-publiczny.pl/wiadomosci/przebudowa-srednicy-wiceprezydent-olszewski-sporo-tematow-do-uzgodnienia-z-koleja-70310.html). W ramach prac zbudowany zostanie między innymi łącznik między metrem, a Dworcem Śródmieście.`,
+
+[Trwa ustalanie szczegółów koordynacji obu inwestycji](https://www.transport-publiczny.pl/wiadomosci/przebudowa-srednicy-wiceprezydent-olszewski-sporo-tematow-do-uzgodnienia-z-koleja-70310.html). W ramach prac zbudowany zostanie między innymi łącznik między metrem, a Dworcem Śródmieście.`,
             subEntries: [],
             links: []
         },
