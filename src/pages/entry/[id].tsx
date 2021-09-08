@@ -13,16 +13,12 @@ import type { StaticProps } from '../_app';
 
 const mapLevelConfig = (level: number): [ElementType, boolean] => [`h${level + 1}` as ElementType, level < 2];
 
-// TODO: cleanup
-
 const ComponentsMapping: ReactMarkdownOptions['components'] = {
-    a({ children, href, title }) {
-        return (
-            <a target='_blank' rel='noreferrer' href={href} title={title}>
-                {children}
-            </a>
-        );
-    }
+    a: ({ children, ...props }) => (
+        <a rel='noreferrer' {...props}>
+            {children}
+        </a>
+    )
 };
 
 function mapEntry(
@@ -42,7 +38,9 @@ function mapEntry(
                 {numberString} {entry.title}
             </Component>
             <EntryLinkList links={entry.links} />
-            <ReactMarkdown components={ComponentsMapping}>{entry.markdownContent}</ReactMarkdown>
+            <ReactMarkdown components={ComponentsMapping} linkTarget='_blank'>
+                {entry.markdownContent}
+            </ReactMarkdown>
             {entry.subEntries.map((subentryId, subindex) =>
                 mapEntry(entries, subentryId, subindex, level + 1, numberString)
             )}
