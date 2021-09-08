@@ -1,0 +1,28 @@
+.hero-entry {
+    min-height: 260px;
+}
+
+.hero-image-wrapper {
+    min-height: 260px;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: -2rem 0 -2rem auto;
+    width: 100%;
+    z-index: 1;
+}
+
+ul.link-list {
+    list-style: none;
+
+    li {
+        display: inline-block;
+
+        &:not(:last-child)::after {
+            content: '|';
+            margin: 0 0.5rem;
+        }
+    }
+}
