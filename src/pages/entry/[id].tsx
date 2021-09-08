@@ -1,4 +1,4 @@
-import { GetServerSideProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ElementType, Fragment, useMemo } from 'react';
@@ -12,6 +12,8 @@ import { data, Entry as DataEntry } from '../../data';
 import type { StaticProps } from '../_app';
 
 const mapLevelConfig = (level: number): [ElementType, boolean] => [`h${level + 1}` as ElementType, level < 2];
+
+// TODO: cleanup
 
 const ComponentsMapping: ReactMarkdownOptions['components'] = {
     a({ children, href, title }) {
@@ -95,7 +97,7 @@ const Entry: NextPage<StaticProps> = ({ appTitle, data: { entries, mainEntries }
 };
 export default Entry;
 
-export const getServerSideProps: GetServerSideProps = async ({ params: { id } = {} }) => {
+export const getStaticProps: GetStaticProps = async ({ params: { id } = {} }) => {
     if (typeof id !== 'string' || !data.entries[id] || !data.mainEntries.includes(id)) {
         return {
             redirect: {
@@ -107,5 +109,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params: { id } = 
 
     return {
         props: {}
+    };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+    return {
+        paths: data.mainEntries.map(id => ({ params: { id } })),
+        fallback: 'blocking'
     };
 };

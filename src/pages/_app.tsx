@@ -5,6 +5,8 @@ import 'spectre.css/dist/spectre-exp.min.css';
 import 'spectre.css/dist/spectre-icons.min.css';
 import '../styles/global.scss';
 
+// TODO: icon + tile image
+
 const staticProps = {
     appTitle: 'Inwestycje w Warszawie',
     data: data

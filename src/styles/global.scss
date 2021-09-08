@@ -26,3 +26,11 @@ ul.link-list {
         }
     }
 }
+
+.card-hullheight {
+    height: calc(100% - 8px);
+
+    .card-image {
+        flex: 1;
+    }
+}
