@@ -22,7 +22,12 @@ export function Accordion({ changes }: Props) {
                             </Fragment>
                         ))}
                     <div className='text-secondary'>
-                        Build {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? 'abc1234'}
+                        <a
+                            href='https://github.com/burtek/warszawskie-inwestycje'
+                            target='_blank'
+                            rel='noreferrer noopener'>
+                            Build {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? 'abc1234'}
+                        </a>
                     </div>
                 </div>
             </div>
