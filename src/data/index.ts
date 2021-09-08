@@ -468,7 +468,7 @@ Prace nad centralnym odcinkiem III linii metra mają potrwać do 2028/2030 roku`
             title: 'Wiadukty na Trasie Łazienkowskiej',
             markdownContent:
                 'Prace ([realizowane przez Skanska](https://www.rynekinfrastruktury.pl/wiadomosci/drogi/skanska-z-umowa-na-wiadukty-trasy-lazienkowskiej-w-warszawie-77332.html)) [rozpoczęły się w sierpniu 2021](https://www.rynekinfrastruktury.pl/wiadomosci/drogi/przebudowa-wiaduktow-trasy-lazienkowskiej--pierwsze-prace-77825.html) i mają potrwać do marca 2024',
-            subEntries: ['d71c9875-52f9-44f9-8286-7b1e2655f130'],
+            subEntries: [],
             links: [
                 {
                     label: 'Rynek Infrastruktury',
