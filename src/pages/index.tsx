@@ -1,21 +1,17 @@
-import type { NextPage } from 'next';
+import type { InferGetStaticPropsType, NextPage } from 'next';
 import Head from 'next/head';
 import { Accordion } from '../components/ChangelogAccordion';
 import { EntryCard } from '../components/EntryCard';
 import { NavBar } from '../components/NavBar';
-import type { StaticProps } from './_app';
+import { BaseDataEntry, DB, MapDataEntry, mapDatumToStringIds } from '../db';
+import type { StaticProps as AppStaticProps } from './_app';
 
-const Home: NextPage<StaticProps> = ({ appTitle, data }) => {
-    const { changes, entries, mainEntries } = data;
-
-    const mapCard = (entryId: string) => {
-        const entry = entries[entryId];
-        return (
-            <div className='column col-2 col-xl-3 col-lg-4 col-sm-6 col-xs-12' key={entryId}>
-                <EntryCard id={entryId} title={entry?.title ?? '404 Not Found'} image={entry?.image} />
-            </div>
-        );
-    };
+const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, mainEntries }) => {
+    const mapCard = ({ id, title }: MapDataEntry<BaseDataEntry>) => (
+        <div className='column col-2 col-xl-3 col-lg-4 col-sm-6 col-xs-12' key={id}>
+            <EntryCard id={id} title={title} />
+        </div>
+    );
 
     return (
         <>
@@ -35,8 +31,21 @@ const Home: NextPage<StaticProps> = ({ appTitle, data }) => {
             <div className='container'>
                 <div className='columns'>{mainEntries.map(mapCard)}</div>
             </div>
-            <Accordion changes={changes} />
+            <Accordion changes={changelog} />
         </>
     );
 };
 export default Home;
+
+type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;
+export const getStaticProps = async () => {
+    const [mainEntries, changelog] = await Promise.all([DB.getMainEntries(), DB.getChangelog()]);
+
+    return {
+        props: {
+            changelog,
+            mainEntries: mainEntries.map(mapDatumToStringIds)
+        },
+        revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
+    };
+};

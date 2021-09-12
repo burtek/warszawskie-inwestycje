@@ -1,74 +1,55 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { ElementType, Fragment, useMemo } from 'react';
+import { ElementType, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import type { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import { EntryHero } from '../../components/EntryHero';
 import { EntryLinkList } from '../../components/EntryLinkList';
 import { NavBar } from '../../components/NavBar';
 import { NavSideBar } from '../../components/NavSideBar';
-import { data, Entry as DataEntry } from '../../data';
-import type { StaticProps } from '../_app';
-
-const mapLevelConfig = (level: number): [ElementType, boolean] => [`h${level + 1}` as ElementType, level < 2];
+import { BaseDataEntry, DB, ExpandedDataEntry, MapDataEntry, mapDatumToStringIds } from '../../db';
+import type { StaticProps as AppStaticProps } from '../_app';
 
 const ComponentsMapping: ReactMarkdownOptions['components'] = {
     a: ({ children, ...props }) => (
-        <a rel='noreferrer' {...props}>
+        <a rel='noopener noreferrer' {...props}>
             {children}
         </a>
     )
 };
 
 function mapEntry(
-    entries: Record<DataEntry['id'], DataEntry>,
-    entryId: DataEntry['id'],
+    { id, title, links, markdownContent, subEntries }: MapDataEntry<ExpandedDataEntry>,
     index: number,
-    level: number = 1,
-    parentNumber = ''
+    level: number = 1
 ) {
-    const entry = entries[entryId];
-    const [Component, numbering] = mapLevelConfig(level);
-    const numberString = numbering ? `${parentNumber}${index + 1}.` : '';
+    const Component = `h${level + 1}` as ElementType;
+    const numberString = level === 1 ? `${index + 1}.` : '';
 
     return (
-        <Fragment key={entryId}>
-            <Component id={level === 1 ? entryId : undefined}>
-                {numberString} {entry.title}
+        <div key={id} style={{ marginLeft: (level - 1) * 30 }}>
+            <Component id={id}>
+                {numberString} {title}
             </Component>
-            <EntryLinkList links={entry.links} />
+            <EntryLinkList links={links} />
             <ReactMarkdown components={ComponentsMapping} linkTarget='_blank'>
-                {entry.markdownContent}
+                {markdownContent}
             </ReactMarkdown>
-            {entry.subEntries.map((subentryId, subindex) =>
-                mapEntry(entries, subentryId, subindex, level + 1, numberString)
-            )}
-        </Fragment>
+            {subEntries.map((subEntry, subIndex) => mapEntry(subEntry, subIndex, level + 1))}
+        </div>
     );
 }
 
-const Entry: NextPage<StaticProps> = ({ appTitle, data: { entries, mainEntries } }) => {
-    const router = useRouter();
-    const id = router.query.id as string;
-    const entry = entries[id];
-
-    const navMainEntries = mainEntries.map(id => entries[id]);
-    const navSubEntries = (entry?.subEntries ?? []).map(id => entries[id]);
+const Entry: NextPage<AppStaticProps & StaticProps> = ({
+    appTitle,
+    entry: { title, id, links, markdownContent, subEntries },
+    mainEntries
+}) => {
     const navSideBar = useMemo(
-        () => <NavSideBar mainEntries={navMainEntries} currentId={id} currentSubEntries={navSubEntries} />,
+        () => <NavSideBar mainEntries={mainEntries} currentId={id} currentSubEntries={subEntries} />,
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [id, navMainEntries.length, navSubEntries.length, ...navMainEntries, ...navSubEntries]
+        [id, mainEntries.length, subEntries.length, ...mainEntries, ...subEntries]
     );
-
-    if (!id || !entry) {
-        if (id) {
-            // it's not server-side, we're good to redirect
-            router.replace('/');
-        }
-        return <></>;
-    }
-    const { image, title } = entry;
 
     return (
         <>
@@ -77,16 +58,16 @@ const Entry: NextPage<StaticProps> = ({ appTitle, data: { entries, mainEntries }
                     {title} | {appTitle}
                 </title>
             </Head>
-            <NavBar appTitle={appTitle} current={{ id, title }} />
-            <EntryHero id={id} title={title} image={image}>
-                <EntryLinkList links={entry.links} />
+            <NavBar appTitle={appTitle} />
+            <EntryHero id={id} title={title}>
+                <EntryLinkList links={links} />
             </EntryHero>
             <div className='container'>
                 <div className='columns'>
                     <div className='column col-3 col-lg-4 hide-md'>{navSideBar}</div>
                     <div className='column col-9 col-lg-8 col-md-12'>
-                        <ReactMarkdown components={ComponentsMapping}>{entry.markdownContent}</ReactMarkdown>
-                        {entry.subEntries.map((subentryId, subindex) => mapEntry(entries, subentryId, subindex))}
+                        <ReactMarkdown components={ComponentsMapping}>{markdownContent}</ReactMarkdown>
+                        {subEntries.map((subEntry, subIndex) => mapEntry(subEntry, subIndex))}
                     </div>
                 </div>
             </div>
@@ -95,24 +76,39 @@ const Entry: NextPage<StaticProps> = ({ appTitle, data: { entries, mainEntries }
 };
 export default Entry;
 
-export const getStaticProps: GetStaticProps = async ({ params: { id } = {} }) => {
-    if (typeof id !== 'string' || !data.entries[id] || !data.mainEntries.includes(id)) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: false
+type StaticProps = {
+    entry: MapDataEntry<ExpandedDataEntry>;
+    mainEntries: MapDataEntry<BaseDataEntry>[];
+};
+export const getStaticProps: GetStaticProps<StaticProps> = async ({ params: { id } = {} }) => {
+    if (typeof id === 'string' && id) {
+        const mainEntries = await DB.getMainEntries();
+
+        if (mainEntries.some(entry => entry.id.toString('D').toLowerCase() === id.toLowerCase())) {
+            const entry = await DB.getEntry(id, true);
+
+            if (entry) {
+                return {
+                    props: {
+                        entry: mapDatumToStringIds(entry),
+                        mainEntries: mainEntries.map(mapDatumToStringIds)
+                    },
+                    revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
+                };
             }
-        };
+        }
     }
 
     return {
-        props: {}
+        redirect: {
+            destination: '/',
+            permanent: false
+        },
+        revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
     };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-    return {
-        paths: data.mainEntries.map(id => ({ params: { id } })),
-        fallback: 'blocking'
-    };
-};
+export const getStaticPaths: GetStaticPaths = async () => ({
+    paths: (await DB.getMainEntriesIds()).map(muuid => ({ params: { id: muuid.toString('D') } })),
+    fallback: 'blocking'
+});

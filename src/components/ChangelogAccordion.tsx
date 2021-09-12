@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { Fragment } from 'react';
-import { Data } from '../data';
+import type { ChangeLog } from '../db';
 
 export function Accordion({ changes }: Props) {
     const id = 'changelog-accordion-checkbox';
@@ -16,7 +16,7 @@ export function Accordion({ changes }: Props) {
                     {changes
                         .filter((_, index) => index < 3)
                         .map(change => (
-                            <Fragment key={change.date}>
+                            <Fragment key={change.date.toISOString()}>
                                 <dt>{dayjs(change.date).format('DD.MM.YYYY HH:mm')}</dt>
                                 <dd>{change.description}</dd>
                             </Fragment>
@@ -27,7 +27,7 @@ export function Accordion({ changes }: Props) {
                             target='_blank'
                             rel='noreferrer noopener'
                             className='text-secondary'>
-                            Build {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? 'abc1234'}
+                            Build {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}
                         </a>
                     </div>
                 </div>
@@ -37,5 +37,5 @@ export function Accordion({ changes }: Props) {
 }
 
 interface Props {
-    changes: Data['changes'];
+    changes: ChangeLog;
 }

@@ -1,8 +1,10 @@
-import { Entry } from '../data';
 import Image from 'next/image';
-import { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
+import { getImageForEntry } from '../images';
 
-export function EntryHero({ children, id, image, title }: Props) {
+export function EntryHero({ children, id, title }: Props) {
+    const image = getImageForEntry(id);
+
     return (
         <div className='hero hero-sm hero-entry bg-gray'>
             <div className='hero-body columns p-relative'>
@@ -16,7 +18,6 @@ export function EntryHero({ children, id, image, title }: Props) {
                         <Image
                             key={id}
                             src={image}
-                            height='100%'
                             alt={title}
                             layout='fill'
                             objectFit='contain'
@@ -31,4 +32,7 @@ export function EntryHero({ children, id, image, title }: Props) {
     );
 }
 
-interface Props extends PropsWithChildren<Pick<Entry, 'id' | 'image' | 'title'>> {}
+type Props = PropsWithChildren<{
+    id: string;
+    title: string;
+}>;

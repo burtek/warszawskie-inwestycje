@@ -1,7 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { PropsWithChildren } from 'react';
+import { getImageForEntry } from '../images';
 
-export function EntryCard({ id, title, image, content }: Props) {
+export function EntryCard({ id, title, children }: Props) {
+    const image = getImageForEntry(id);
+
     return (
         <div className='card card-fullheight mt-2 p-relative'>
             <div className='card-header'>
@@ -12,7 +16,7 @@ export function EntryCard({ id, title, image, content }: Props) {
                     <Image src={image} className='img-responsive' alt={title} placeholder='blur' objectFit='cover' />
                 </div>
             )}
-            {content && <div className='card-body'>{content}</div>}
+            {children && <div className='card-body'>{children}</div>}
             <div className='card-footer'>
                 <Link href={`/entry/${id}`}>
                     <a className='btn btn-primary'>Więcej informacji</a>
@@ -23,9 +27,7 @@ export function EntryCard({ id, title, image, content }: Props) {
 }
 EntryCard.displayName = 'EntryCard';
 
-interface Props {
+type Props = PropsWithChildren<{
     id: string;
     title: string;
-    image?: StaticImageData;
-    content?: string | JSX.Element;
-}
+}>;

@@ -35,8 +35,8 @@ export function NavBar({ appTitle /*, current*/ }: Props) {
 
 interface Props {
     appTitle: string;
-    current?: {
-        id: string;
-        title: string;
-    };
+    // current?: {
+    //     id: string;
+    //     title: string;
+    // };
 }

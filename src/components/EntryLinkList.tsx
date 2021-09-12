@@ -1,4 +1,4 @@
-import { Entry } from '../data';
+import type { Links } from '../db';
 
 export function EntryLinkList({ links }: Props) {
     if (!links || links.length === 0) {
@@ -19,5 +19,5 @@ export function EntryLinkList({ links }: Props) {
 }
 
 interface Props {
-    links: Entry['links'] | undefined;
+    links?: Links;
 }
