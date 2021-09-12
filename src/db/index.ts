@@ -24,7 +24,9 @@ export class DB {
 
     static async connect() {
         return (this.connection ??= await mongoose
-            .createConnection(process.env.DB_CONNECTION_STRING ?? '')
+            .createConnection(
+                `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_DB}?retryWrites=true&w=majority`
+            )
             .asPromise());
     }
 
