@@ -1,11 +1,11 @@
 import isEqual from 'lodash/isEqual';
 import Link from 'next/link';
 import { memo, useCallback } from 'react';
-import type { BaseDataEntry, MapDataEntry } from '../db';
+import type { BaseDataEntry } from '../db';
 
 export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Props) {
     const mapSubEntries = useCallback(
-        ({ id, title }: MapDataEntry<BaseDataEntry>) => (
+        ({ id, title }: BaseDataEntry) => (
             <li className='nav-item' key={id}>
                 <Link href={`#${id}`}>
                     <a>{title}</a>
@@ -15,7 +15,7 @@ export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Pr
         []
     );
     const mapEntries = useCallback(
-        ({ id, title }: MapDataEntry<BaseDataEntry>) => {
+        ({ id, title }: BaseDataEntry) => {
             const thisCurrent = currentId === id;
             return (
                 <li className={'nav-item' + (thisCurrent ? ' active' : '')} key={id}>
@@ -47,7 +47,7 @@ export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Pr
 export const NavSideBar = memo(NavSideBarComp, (prevProps, nextProps) => isEqual(prevProps, nextProps));
 
 interface Props {
-    mainEntries: MapDataEntry<BaseDataEntry>[];
+    mainEntries: BaseDataEntry[];
     currentId: string;
-    currentSubEntries: MapDataEntry<BaseDataEntry>[];
+    currentSubEntries: BaseDataEntry[];
 }

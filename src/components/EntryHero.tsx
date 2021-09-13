@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
 import { getImageForEntry } from '../images';
+import { DateView } from './DateView';
 
-export function EntryHero({ children, id, title }: Props) {
+export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props) {
     const image = getImageForEntry(id);
 
     return (
@@ -12,6 +13,10 @@ export function EntryHero({ children, id, title }: Props) {
                 <div className='column col-5 col-lg-4'>
                     <h1>{title}</h1>
                     {children}
+                    <p className='text-gray text-small'>
+                        Ostatnia zmiana: <DateView>{lastUpdate}</DateView> (według stanu na{' '}
+                        <DateView>{buildDate}</DateView>)
+                    </p>
                 </div>
                 <div className='hero-image-wrapper hide-lg'>
                     {image && (
@@ -35,4 +40,7 @@ export function EntryHero({ children, id, title }: Props) {
 type Props = PropsWithChildren<{
     id: string;
     title: string;
+    lastUpdate: string;
+
+    buildDate: string;
 }>;

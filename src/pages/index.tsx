@@ -1,15 +1,15 @@
 import type { InferGetStaticPropsType, NextPage } from 'next';
 import Head from 'next/head';
-import { Accordion } from '../components/ChangelogAccordion';
+import { ChangelogAccordion } from '../components/ChangelogAccordion';
 import { EntryCard } from '../components/EntryCard';
 import { NavBar } from '../components/NavBar';
-import { BaseDataEntry, DB, MapDataEntry, mapDatumToStringIds } from '../db';
+import { BaseDataEntry, ChangeLog, DB } from '../db';
 import type { StaticProps as AppStaticProps } from './_app';
 
 const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, mainEntries }) => {
-    const mapCard = ({ id, title }: MapDataEntry<BaseDataEntry>) => (
+    const mapCard = ({ id, lastUpdate, title }: BaseDataEntry) => (
         <div className='column col-2 col-xl-3 col-lg-4 col-sm-6 col-xs-12' key={id}>
-            <EntryCard id={id} title={title} />
+            <EntryCard id={id} lastUpdate={lastUpdate} title={title} />
         </div>
     );
 
@@ -31,7 +31,7 @@ const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, mai
             <div className='container'>
                 <div className='columns'>{mainEntries.map(mapCard)}</div>
             </div>
-            <Accordion changes={changelog} />
+            <ChangelogAccordion changelog={changelog} />
         </>
     );
 };
@@ -39,12 +39,21 @@ export default Home;
 
 type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;
 export const getStaticProps = async () => {
-    const [mainEntries, changelog] = await Promise.all([DB.getMainEntries(), DB.getChangelog()]);
+    const mainEntriesPromise = DB.getMainEntries();
+
+    let changelog: ChangeLog = [];
+    try {
+        changelog = await DB.getChangelog();
+    } catch (error) {
+        console.error(error);
+    }
+
+    const mainEntries = await mainEntriesPromise;
 
     return {
         props: {
             changelog,
-            mainEntries: mainEntries.map(mapDatumToStringIds)
+            mainEntries
         },
         revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
     };

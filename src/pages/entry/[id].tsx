@@ -7,7 +7,7 @@ import { EntryHero } from '../../components/EntryHero';
 import { EntryLinkList } from '../../components/EntryLinkList';
 import { NavBar } from '../../components/NavBar';
 import { NavSideBar } from '../../components/NavSideBar';
-import { BaseDataEntry, DB, ExpandedDataEntry, MapDataEntry, mapDatumToStringIds } from '../../db';
+import { BaseDataEntry, DB, ExpandedDataEntry } from '../../db';
 import type { StaticProps as AppStaticProps } from '../_app';
 
 const ComponentsMapping: ReactMarkdownOptions['components'] = {
@@ -19,7 +19,7 @@ const ComponentsMapping: ReactMarkdownOptions['components'] = {
 };
 
 function mapEntry(
-    { id, title, links, markdownContent, subEntries }: MapDataEntry<ExpandedDataEntry>,
+    { id, title, links, markdownContent, subEntries }: ExpandedDataEntry,
     index: number,
     level: number = 1
 ) {
@@ -42,7 +42,8 @@ function mapEntry(
 
 const Entry: NextPage<AppStaticProps & StaticProps> = ({
     appTitle,
-    entry: { title, id, links, markdownContent, subEntries },
+    buildDate,
+    entry: { title, id, lastUpdate, links, markdownContent, subEntries },
     mainEntries
 }) => {
     const navSideBar = useMemo(
@@ -59,7 +60,7 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
                 </title>
             </Head>
             <NavBar appTitle={appTitle} />
-            <EntryHero id={id} title={title}>
+            <EntryHero id={id} title={title} lastUpdate={lastUpdate} buildDate={buildDate}>
                 <EntryLinkList links={links} />
             </EntryHero>
             <div className='container'>
@@ -77,21 +78,23 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
 export default Entry;
 
 type StaticProps = {
-    entry: MapDataEntry<ExpandedDataEntry>;
-    mainEntries: MapDataEntry<BaseDataEntry>[];
+    buildDate: string;
+    entry: ExpandedDataEntry;
+    mainEntries: BaseDataEntry[];
 };
 export const getStaticProps: GetStaticProps<StaticProps> = async ({ params: { id } = {} }) => {
     if (typeof id === 'string' && id) {
         const mainEntries = await DB.getMainEntries();
 
-        if (mainEntries.some(entry => entry.id.toString('D').toLowerCase() === id.toLowerCase())) {
+        if (mainEntries.some(entry => entry.id.toLowerCase() === id.toLowerCase())) {
             const entry = await DB.getEntry(id, true);
 
             if (entry) {
                 return {
                     props: {
-                        entry: mapDatumToStringIds(entry),
-                        mainEntries: mainEntries.map(mapDatumToStringIds)
+                        buildDate: new Date().toISOString(),
+                        entry,
+                        mainEntries
                     },
                     revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
                 };

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { Fragment } from 'react';
 import type { ChangeLog } from '../db';
 
-export function Accordion({ changes }: Props) {
+export function ChangelogAccordion({ changelog }: Props) {
     const id = 'changelog-accordion-checkbox';
     return (
         <div className='container'>
@@ -13,10 +13,10 @@ export function Accordion({ changes }: Props) {
                     Lista zmian
                 </label>
                 <div className='accordion-body'>
-                    {changes
+                    {changelog
                         .filter((_, index) => index < 3)
                         .map(change => (
-                            <Fragment key={change.date.toISOString()}>
+                            <Fragment key={dayjs(change.date).toISOString()}>
                                 <dt>{dayjs(change.date).format('DD.MM.YYYY HH:mm')}</dt>
                                 <dd>{change.description}</dd>
                             </Fragment>
@@ -37,5 +37,5 @@ export function Accordion({ changes }: Props) {
 }
 
 interface Props {
-    changes: ChangeLog;
+    changelog: ChangeLog;
 }

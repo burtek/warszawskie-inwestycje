@@ -2,8 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { PropsWithChildren } from 'react';
 import { getImageForEntry } from '../images';
+import { DateView } from './DateView';
 
-export function EntryCard({ id, title, children }: Props) {
+export function EntryCard({ id, lastUpdate, title, children }: Props) {
     const image = getImageForEntry(id);
 
     return (
@@ -18,6 +19,9 @@ export function EntryCard({ id, title, children }: Props) {
             )}
             {children && <div className='card-body'>{children}</div>}
             <div className='card-footer'>
+                <p className='text-gray text-small'>
+                    Ostatnia aktualizacja: <DateView>{lastUpdate}</DateView>
+                </p>
                 <Link href={`/entry/${id}`}>
                     <a className='btn btn-primary'>Więcej informacji</a>
                 </Link>
@@ -29,5 +33,6 @@ EntryCard.displayName = 'EntryCard';
 
 type Props = PropsWithChildren<{
     id: string;
+    lastUpdate: string;
     title: string;
 }>;
