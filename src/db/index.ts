@@ -1,10 +1,11 @@
 import type { Binary } from 'mongodb';
-import type { Connection, Document, Model } from 'mongoose';
+import type { Connection, Model } from 'mongoose';
 import mongoose, { Schema } from 'mongoose';
 import UUID, { MUUID } from 'uuid-mongodb';
 import _pick from 'lodash/fp/pick';
 import _maxBy from 'lodash/maxBy';
 import dayjs from 'dayjs';
+import { uuidToString } from './mapMUUID';
 
 interface IEntry {
     _id: Binary;
@@ -30,39 +31,47 @@ const EntrySchema = new Schema<IEntry, Model<IEntry, {}, {}>>(
     }
 );
 
-type EntryDocument = Document<Binary, any, IEntry>;
 type EitherOr<B extends boolean, True, False> = (B extends true ? True : never) | (B extends false ? False : never);
 export class DB {
     private static connection: Connection | undefined;
 
     static async connect() {
-        return (this.connection ??= await mongoose
-            .createConnection(
-                `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_DB}?retryWrites=true&w=majority`
-            )
-            .asPromise());
+        const dbUri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_DB}?retryWrites=true&w=majority`;
+
+        switch (this.connection?.readyState) {
+            case undefined:
+            case 0:
+            case 3:
+                await this.connection?.close();
+                this.connection = await mongoose.createConnection(dbUri, { maxIdleTimeMS: 1000 }).asPromise();
+                break;
+            case 2:
+                await this.connection.asPromise();
+        }
+
+        return this.connection as Connection;
     }
 
-    static async close() {
+    static close() {
         this.connection?.close();
     }
 
     private static getConfig =
         <D extends unknown>() =>
         async <T extends string, R extends unknown>(type: T, mapper: (arg: D) => R) => {
-            await this.connect();
+            const connection = await this.connect();
 
-            const mainDoc = await this.connection?.db.collection<{ type: T; data: D[] }>('main').findOne({ type });
+            const mainDoc = await connection.db.collection<{ type: T; data: D[] }>('main').findOne({ type });
 
             return mainDoc?.data.map(mapper) ?? [];
         };
 
     static getMainEntriesIds() {
-        return this.getConfig<Binary>()('main', binaryId => UUID.from(binaryId));
+        return this.getConfig<Binary>()('main', uuidToString);
     }
 
     static getChangelog() {
-        return this.getConfig<{ date: Date; description: string }>()('changlog', ({ date, description }) => ({
+        return this.getConfig<{ date: Date; description: string }>()('changelog', ({ date, description }) => ({
             date: dayjs(date).toISOString(),
             description
         }));
@@ -103,7 +112,7 @@ export class DB {
         }
 
         const mappedEntry = {
-            id: UUID.from(id).toString('D'),
+            id: uuidToString(id),
             subEntries: entryDoc.subEntries.map(binaryId => UUID.from(binaryId)),
             title: entryDoc.title,
             markdownContent: entryDoc.markdownContent,
@@ -126,7 +135,7 @@ export class DB {
 
         return {
             ...mappedEntry,
-            subEntries: mappedEntry.subEntries.map(uuid => uuid.toString('D'))
+            subEntries: mappedEntry.subEntries.map(uuidToString)
         } as R;
     }
 

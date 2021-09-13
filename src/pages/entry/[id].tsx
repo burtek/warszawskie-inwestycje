@@ -112,6 +112,6 @@ export const getStaticProps: GetStaticProps<StaticProps> = async ({ params: { id
 };
 
 export const getStaticPaths: GetStaticPaths = async () => ({
-    paths: (await DB.getMainEntriesIds()).map(muuid => ({ params: { id: muuid.toString('D') } })),
+    paths: (await DB.getMainEntriesIds()).map(id => ({ params: { id } })),
     fallback: 'blocking'
 });

@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 
 export function DateView({ children, format = 'DD.MM.YYYY HH:mm' }: Props) {
-    return <time dateTime={dayjs(children).toISOString()}>{dayjs(children).format(format)}</time>;
+    const date = dayjs(children);
+    return <time dateTime={date.toISOString()}>{date.format(format)}</time>;
 }
 
 interface Props {
