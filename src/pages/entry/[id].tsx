@@ -2,21 +2,17 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import { ElementType, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import { EntryHero } from '../../components/EntryHero';
-import { EntryLinkList } from '../../components/EntryLinkList';
+import { EntryLink, EntryLinkList } from '../../components/EntryLinkList';
 import { NavBar } from '../../components/NavBar';
 import { NavSideBar } from '../../components/NavSideBar';
 import { BaseDataEntry, DB, ExpandedDataEntry } from '../../db';
 import type { StaticProps as AppStaticProps } from '../_app';
 
-const ComponentsMapping: ReactMarkdownOptions['components'] = {
-    a: ({ children, ...props }) => (
-        <a rel='noopener noreferrer' {...props}>
-            {children}
-        </a>
-    )
-};
+function renderMD(markdownContent: string) {
+    return <ReactMarkdown components={renderMD.components}>{markdownContent}</ReactMarkdown>;
+}
+renderMD.components = { a: EntryLink };
 
 function mapEntry(
     { id, title, links, markdownContent, subEntries }: ExpandedDataEntry,
@@ -32,9 +28,7 @@ function mapEntry(
                 {numberString} {title}
             </Component>
             <EntryLinkList links={links} />
-            <ReactMarkdown components={ComponentsMapping} linkTarget='_blank'>
-                {markdownContent}
-            </ReactMarkdown>
+            {renderMD(markdownContent)}
             {subEntries.map((subEntry, subIndex) => mapEntry(subEntry, subIndex, level + 1))}
         </div>
     );
@@ -63,11 +57,11 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
             <EntryHero id={id} title={title} lastUpdate={lastUpdate} buildDate={buildDate}>
                 <EntryLinkList links={links} />
             </EntryHero>
-            <div className='container'>
-                <div className='columns'>
-                    <div className='column col-3 col-lg-4 hide-md'>{navSideBar}</div>
-                    <div className='column col-9 col-lg-8 col-md-12'>
-                        <ReactMarkdown components={ComponentsMapping}>{markdownContent}</ReactMarkdown>
+            <div className="container">
+                <div className="columns">
+                    <div className="column col-3 col-lg-4 hide-md">{navSideBar}</div>
+                    <div className="column col-9 col-lg-8 col-md-12">
+                        {renderMD(markdownContent)}
                         {subEntries.map((subEntry, subIndex) => mapEntry(subEntry, subIndex))}
                     </div>
                 </div>

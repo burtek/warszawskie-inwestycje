@@ -6,7 +6,7 @@ import type { BaseDataEntry } from '../db';
 export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Props) {
     const mapSubEntries = useCallback(
         ({ id, title }: BaseDataEntry) => (
-            <li className='nav-item' key={id}>
+            <li className="nav-item" key={id}>
                 <Link href={`#${id}`}>
                     <a>{title}</a>
                 </Link>
@@ -22,7 +22,7 @@ export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Pr
                     <Link href={`/entry/${id}`}>
                         <a>{title}</a>
                     </Link>
-                    {thisCurrent && <ul className='nav'>{currentSubEntries.map(mapSubEntries)}</ul>}
+                    {thisCurrent && <ul className="nav">{currentSubEntries.map(mapSubEntries)}</ul>}
                 </li>
             );
         },
@@ -30,15 +30,17 @@ export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Pr
     );
 
     return (
-        <ul className='nav p-sticky'>
-            <li className='nav-item'>
-                <Link href='/'>
+        <ul className="nav p-sticky">
+            <li className="nav-item">
+                <Link href="/">
                     <a>Główna</a>
                 </Link>
             </li>
-            <li className='nav-item active'>
-                <a>Obszary</a>
-                <ul className='nav'>{mainEntries.map(mapEntries)}</ul>
+            <li className="nav-item active">
+                <a href="#" onClick={e => e.preventDefault()}>
+                    Obszary
+                </a>
+                <ul className="nav">{mainEntries.map(mapEntries)}</ul>
             </li>
         </ul>
     );
