@@ -35,6 +35,7 @@ export function ChangelogAccordion({ changelog }: Props) {
         </div>
     );
 }
+ChangelogAccordion.displayName = 'ChangelogAccordion';
 
 interface Props {
     changelog: ChangeLog;

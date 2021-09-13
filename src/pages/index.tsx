@@ -35,6 +35,7 @@ const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, mai
         </>
     );
 };
+Home.displayName = 'Home';
 export default Home;
 
 type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;

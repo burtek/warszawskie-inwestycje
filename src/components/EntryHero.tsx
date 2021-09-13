@@ -36,6 +36,7 @@ export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props)
         </div>
     );
 }
+EntryHero.displayName = 'EntryHero';
 
 type Props = PropsWithChildren<{
     id: string;

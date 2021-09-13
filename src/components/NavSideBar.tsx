@@ -45,6 +45,7 @@ export function NavSideBarComp({ mainEntries, currentId, currentSubEntries }: Pr
         </ul>
     );
 }
+NavSideBarComp.displayName = 'NavSideBar';
 
 export const NavSideBar = memo(NavSideBarComp, (prevProps, nextProps) => isEqual(prevProps, nextProps));
 

@@ -14,5 +14,6 @@ export type StaticProps = typeof staticProps;
 function MyApp({ Component, pageProps }: AppProps) {
     return <Component {...pageProps} {...staticProps} />;
 }
+MyApp.displayName = 'MyApp';
 
 export default MyApp;

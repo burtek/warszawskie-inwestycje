@@ -13,6 +13,7 @@ export function NavBar({ appTitle }: Props) {
         </div>
     );
 }
+NavBar.displayName = 'NavBar';
 
 interface Props {
     appTitle: string;

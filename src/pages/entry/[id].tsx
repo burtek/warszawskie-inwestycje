@@ -69,6 +69,7 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
         </>
     );
 };
+Entry.displayName = 'Entry';
 export default Entry;
 
 type StaticProps = {
