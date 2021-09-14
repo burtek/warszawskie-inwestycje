@@ -1,16 +1,16 @@
-import Image from 'next/image';
+// import Image from 'next/image';
 import type { PropsWithChildren } from 'react';
-import { getImageForEntry } from '../images';
+// import { getImageForEntry } from '../images';
 import { DateView } from './DateView';
 
 export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props) {
-    const image = getImageForEntry(id);
+    // const image = getImageForEntry(id);
 
     return (
         <div className="hero hero-sm hero-entry bg-gray">
             <div className="hero-body columns p-relative">
                 <div className="column col-3 col-lg-4 hide-md" />
-                <div className="column col-5 col-lg-4 hero-body-inner">
+                <div className="column col-9 col-lg-8 col-md-12">
                     <h1>{title}</h1>
                     {children}
                     <p className="text-gray text-small">
@@ -18,7 +18,7 @@ export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props)
                         <DateView>{buildDate}</DateView>)
                     </p>
                 </div>
-                <div className="hero-image-wrapper hide-lg">
+                {/* <div className="hero-image-wrapper hide-lg">
                     {image && (
                         <Image
                             key={id}
@@ -31,7 +31,7 @@ export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props)
                             placeholder="empty"
                         />
                     )}
-                </div>
+                </div> */}
             </div>
         </div>
     );
