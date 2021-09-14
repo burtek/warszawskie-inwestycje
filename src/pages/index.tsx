@@ -3,15 +3,19 @@ import Head from 'next/head';
 import { ChangelogAccordion } from '../components/ChangelogAccordion';
 import { EntryCard } from '../components/EntryCard';
 import { NavBar } from '../components/NavBar';
-import { BaseDataEntry, ChangeLog, DB } from '../db';
+import { DB, Types } from '../db';
 import type { StaticProps as AppStaticProps } from './_app';
 
-const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, mainEntries }) => {
-    const mapCard = ({ id, lastUpdate, title }: BaseDataEntry) => (
+const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, error, mainEntries }) => {
+    const mapCard = ({ id, lastUpdate, title }: Types.HomeEntry) => (
         <div className="column col-2 col-xl-3 col-lg-4 col-sm-6 col-xs-12" key={id}>
             <EntryCard id={id} lastUpdate={lastUpdate} title={title} />
         </div>
     );
+
+    if (error) {
+        return <div>Ups... Już naprawiam 😅</div>;
+    }
 
     return (
         <>
@@ -40,21 +44,22 @@ export default Home;
 
 type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;
 export const getStaticProps = async () => {
-    const mainEntriesPromise = DB.getMainEntries();
+    let changelog: Types.ChangelogItem[] = [];
+    let mainEntries: Types.HomeEntry[] = [];
+    let error = false;
 
-    let changelog: ChangeLog = [];
     try {
-        changelog = await DB.getChangelog();
-    } catch (error) {
-        console.error(error);
+        ({ changelog, mainEntries } = await DB.getHomeData());
+    } catch (err: unknown) {
+        console.error(err);
+        error = true;
     }
-
-    const mainEntries = await mainEntriesPromise;
 
     return {
         props: {
             changelog,
-            mainEntries
+            mainEntries,
+            error
         },
         revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
     };

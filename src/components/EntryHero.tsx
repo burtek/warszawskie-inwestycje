@@ -10,7 +10,7 @@ export function EntryHero({ buildDate, children, id, lastUpdate, title }: Props)
         <div className="hero hero-sm hero-entry bg-gray">
             <div className="hero-body columns p-relative">
                 <div className="column col-3 col-lg-4 hide-md" />
-                <div className="column col-5 col-lg-4">
+                <div className="column col-5 col-lg-4 hero-body-inner">
                     <h1>{title}</h1>
                     {children}
                     <p className="text-gray text-small">

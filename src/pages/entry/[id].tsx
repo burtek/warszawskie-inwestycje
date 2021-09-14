@@ -1,12 +1,12 @@
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticPropsContext, InferGetStaticPropsType, NextPage, Redirect } from 'next';
 import Head from 'next/head';
-import { ElementType, useMemo } from 'react';
+import { ElementType } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { EntryHero } from '../../components/EntryHero';
 import { EntryLink, EntryLinkList } from '../../components/EntryLinkList';
 import { NavBar } from '../../components/NavBar';
 import { NavSideBar } from '../../components/NavSideBar';
-import { BaseDataEntry, DB, ExpandedDataEntry } from '../../db';
+import { DB, Types } from '../../db';
 import type { StaticProps as AppStaticProps } from '../_app';
 
 function renderMD(markdownContent: string) {
@@ -15,7 +15,7 @@ function renderMD(markdownContent: string) {
 renderMD.components = { a: EntryLink };
 
 function mapEntry(
-    { id, title, links, markdownContent, subEntries }: ExpandedDataEntry,
+    { id, title, links, markdownContent, subEntries }: Types.FullEntry,
     index: number,
     level: number = 1
 ) {
@@ -34,17 +34,15 @@ function mapEntry(
     );
 }
 
-const Entry: NextPage<AppStaticProps & StaticProps> = ({
-    appTitle,
-    buildDate,
-    entry: { title, id, lastUpdate, links, markdownContent, subEntries },
-    mainEntries
-}) => {
-    const navSideBar = useMemo(
-        () => <NavSideBar mainEntries={mainEntries} currentId={id} currentSubEntries={subEntries} />,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [id, mainEntries.length, subEntries.length, ...mainEntries, ...subEntries]
-    );
+const Entry: NextPage<AppStaticProps & StaticProps> = ({ appTitle, buildDate, ...props }) => {
+    if (props.error) {
+        return <div>Ups... Już naprawiam 😅</div>;
+    }
+    const {
+        entry: { title, id, links, markdownContent, subEntries },
+        navbarEntries,
+        lastUpdated
+    } = props;
 
     return (
         <>
@@ -54,12 +52,14 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
                 </title>
             </Head>
             <NavBar appTitle={appTitle} />
-            <EntryHero id={id} title={title} lastUpdate={lastUpdate} buildDate={buildDate}>
+            <EntryHero id={id} title={title} lastUpdate={lastUpdated} buildDate={buildDate}>
                 <EntryLinkList links={links} />
             </EntryHero>
             <div className="container">
                 <div className="columns">
-                    <div className="column col-3 col-lg-4 hide-md">{navSideBar}</div>
+                    <div className="column col-3 col-lg-4 hide-md">
+                        <NavSideBar mainEntries={navbarEntries} currentId={id} currentSubEntries={subEntries} />
+                    </div>
                     <div className="column col-9 col-lg-8 col-md-12">
                         {renderMD(markdownContent)}
                         {subEntries.map((subEntry, subIndex) => mapEntry(subEntry, subIndex))}
@@ -72,29 +72,61 @@ const Entry: NextPage<AppStaticProps & StaticProps> = ({
 Entry.displayName = 'Entry';
 export default Entry;
 
-type StaticProps = {
-    buildDate: string;
-    entry: ExpandedDataEntry;
-    mainEntries: BaseDataEntry[];
-};
-export const getStaticProps: GetStaticProps<StaticProps> = async ({ params: { id } = {} }) => {
+type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;
+export const getStaticProps = async ({ params: { id } = {} }: GetStaticPropsContext<{ id?: string }>) => {
+    const revalidate = parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10);
+
+    let error = false;
+    let navbarEntries: Types.NavbarEntry[] = [];
+    let entry: Types.FullEntry | null = null;
+    let lastUpdated: string | null = null;
+
     if (typeof id === 'string' && id) {
-        const mainEntries = await DB.getMainEntries();
+        try {
+            const data = await DB.getMainEntry(id);
 
-        if (mainEntries.some(entry => entry.id.toLowerCase() === id.toLowerCase())) {
-            const entry = await DB.getEntry(id, true);
+            if (data) {
+                ({ entry, lastUpdated } = data);
+            }
+        } catch (err) {
+            console.error(err);
+            error = true;
+        }
 
-            if (entry) {
-                return {
-                    props: {
-                        buildDate: new Date().toISOString(),
-                        entry,
-                        mainEntries
-                    },
-                    revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
-                };
+        if (entry) {
+            try {
+                navbarEntries = await DB.getNavbar();
+            } catch (error) {
+                console.error(error);
             }
         }
+    }
+
+    if (entry || error) {
+        return {
+            props: {
+                buildDate: new Date().toISOString(),
+                error,
+                navbarEntries,
+                entry,
+                lastUpdated
+            } as
+                | {
+                      buildDate: string;
+                      error: true;
+                      navbarEntries: Types.NavbarEntry[];
+                      entry: undefined;
+                      lastUpdated: undefined;
+                  }
+                | {
+                      buildDate: string;
+                      error: false;
+                      navbarEntries: Types.NavbarEntry[];
+                      entry: Types.FullEntry;
+                      lastUpdated: string;
+                  },
+            revalidate
+        };
     }
 
     return {
@@ -102,11 +134,11 @@ export const getStaticProps: GetStaticProps<StaticProps> = async ({ params: { id
             destination: '/',
             permanent: false
         },
-        revalidate: parseInt(process.env.REVALIDATE_TIMEOUT || '10', 10)
-    };
+        revalidate
+    } as { redirect: Redirect; revalidate: number };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => ({
-    paths: (await DB.getMainEntriesIds()).map(id => ({ params: { id } })),
+    paths: (await DB.getMainEntryIds())?.map(id => ({ params: { id } })) ?? [],
     fallback: 'blocking'
 });
