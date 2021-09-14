@@ -1,5 +1,4 @@
 import { PropsWithChildren } from 'react';
-import type { Links } from '../db';
 
 export function EntryLink({ href = '', title, children }: LinkProps) {
     let host = new URL(href).host;
@@ -19,8 +18,8 @@ type LinkProps = PropsWithChildren<{
     title?: string;
 }>;
 
-export function EntryLinkList({ links }: Props) {
-    if (!links || links.length === 0) {
+export function EntryLinkList({ links }: ListProps) {
+    if (links.length === 0) {
         return null;
     }
 
@@ -35,6 +34,9 @@ export function EntryLinkList({ links }: Props) {
     );
 }
 EntryLinkList.displayName = 'EntryLinkList';
-interface Props {
-    links?: Links;
+interface ListProps {
+    links: Array<{
+        url: string;
+        label: string;
+    }>;
 }

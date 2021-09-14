@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { Fragment } from 'react';
-import type { ChangeLog } from '../db';
 
 export function ChangelogAccordion({ changelog }: Props) {
     const id = 'changelog-accordion-checkbox';
@@ -15,12 +14,15 @@ export function ChangelogAccordion({ changelog }: Props) {
                 <div className="accordion-body">
                     {changelog
                         .filter((_, index) => index < 3)
-                        .map(change => (
-                            <Fragment key={dayjs(change.date).toISOString()}>
-                                <dt>{dayjs(change.date).format('DD.MM.YYYY HH:mm')}</dt>
-                                <dd>{change.description}</dd>
-                            </Fragment>
-                        ))}
+                        .map(change => {
+                            const date = dayjs(change.date);
+                            return (
+                                <Fragment key={date.toISOString()}>
+                                    <dt>{date.format('DD.MM.YYYY HH:mm')}</dt>
+                                    <dd>{change.description}</dd>
+                                </Fragment>
+                            );
+                        })}
                     <div>
                         <a
                             href="https://github.com/burtek/warszawskie-inwestycje"
@@ -38,5 +40,8 @@ export function ChangelogAccordion({ changelog }: Props) {
 ChangelogAccordion.displayName = 'ChangelogAccordion';
 
 interface Props {
-    changelog: ChangeLog;
+    changelog: Array<{
+        date: string;
+        description: string;
+    }>;
 }
