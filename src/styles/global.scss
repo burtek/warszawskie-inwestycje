@@ -46,3 +46,94 @@ ul.link-list {
         }
     }
 }
+
+%admin-column {
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.admin-wrapper {
+    .admin-loader {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .md-code-wrap {
+        white-space: pre-wrap;
+    }
+
+    .w-md-editor-text-pre > code {
+        padding: 0 !important;
+        background: inherit !important;
+        border-radius: 0 !important;
+
+        line-height: inherit !important;
+        font-size: inherit !important;
+    }
+
+    .admin-column {
+        @extend %admin-column;
+    }
+
+    .admin-sidebar {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: relative;
+
+        .admin-sidebar-list {
+            @extend %admin-column;
+            padding-bottom: 50px;
+        }
+
+        .admin-sidebar-button {
+            background-color: white;
+
+            position: absolute;
+            left: 0;
+            right: 23px;
+            bottom: 0;
+
+            padding: 0 5px 5px;
+        }
+    }
+
+    .url-input[value^="http://"]
+    {
+        border-color: orangered;
+        background-color: orange;
+    }
+
+    .orphaned-entries {
+        background-color: orange;
+    }
+}
+
+.login-modal-overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 35%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.login-modal {
+    height: 300px;
+    width: 600px;
+    padding: 20px 50px 40px;
+
+    background: white;
+    border-radius: 20px;
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    outline: none;
+}

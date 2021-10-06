@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { getMainEntry, getHomeData, getMainEntryIds, getNavbar } from './getters';
-import type * as Types from './getters';
+import type * as Types from './getters/_types';
 
 export type { Types };
 

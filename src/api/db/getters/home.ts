@@ -1,18 +1,9 @@
 import type { Binary, Db } from 'mongodb';
 import { uuidToString } from '../utils';
+import type { ChangelogItem, HomepageEntry } from './_types';
 
-export interface ChangelogItem {
-    date: string;
-    description: string;
-}
-interface Entry {
+interface AggEntry {
     _id: Binary;
-    title: string;
-    markdownContent: string;
-    lastUpdate: string;
-}
-export interface HomeEntry {
-    id: string;
     title: string;
     markdownContent: string;
     lastUpdate: string;
@@ -21,7 +12,7 @@ export interface HomeEntry {
 export async function getHomeData(db: Db) {
     const [{ changelog, mainEntries }] = await db
         .collection('main')
-        .aggregate<{ changelog: ChangelogItem[]; mainEntries: Entry[] }>([
+        .aggregate<{ changelog: ChangelogItem[]; mainEntries: AggEntry[] }>([
             {
                 $facet: {
                     changelog: [
@@ -73,7 +64,7 @@ export async function getHomeData(db: Db) {
 
     return {
         changelog,
-        mainEntries: mainEntries.map(({ _id, ...entry }) => ({ id: uuidToString(_id), ...entry }))
+        mainEntries: mainEntries.map<HomepageEntry>(({ _id, ...entry }) => ({ id: uuidToString(_id), ...entry }))
     };
 }
 

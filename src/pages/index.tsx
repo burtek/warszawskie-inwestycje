@@ -3,11 +3,11 @@ import Head from 'next/head';
 import { ChangelogAccordion } from '../components/ChangelogAccordion';
 import { EntryCard } from '../components/EntryCard';
 import { NavBar } from '../components/NavBar';
-import { DB, Types } from '../db';
+import { DB, Types } from '../api/db';
 import type { StaticProps as AppStaticProps } from './_app';
 
 const Home: NextPage<AppStaticProps & StaticProps> = ({ appTitle, changelog, error, mainEntries }) => {
-    const mapCard = ({ id, lastUpdate, title }: Types.HomeEntry) => (
+    const mapCard = ({ id, lastUpdate, title }: Types.HomepageEntry) => (
         <div className="column col-2 col-xl-3 col-lg-4 col-sm-6 col-xs-12" key={id}>
             <EntryCard id={id} lastUpdate={lastUpdate} title={title} />
         </div>
@@ -45,7 +45,7 @@ export default Home;
 type StaticProps = InferGetStaticPropsType<typeof getStaticProps>;
 export const getStaticProps = async () => {
     let changelog: Types.ChangelogItem[] = [];
-    let mainEntries: Types.HomeEntry[] = [];
+    let mainEntries: Types.HomepageEntry[] = [];
     let error = false;
 
     try {

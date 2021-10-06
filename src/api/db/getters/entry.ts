@@ -2,34 +2,7 @@ import keyBy from 'lodash/keyBy';
 import type { Binary, Db } from 'mongodb';
 import UUID from 'uuid-mongodb';
 import { uuidToString } from '../utils';
-
-interface Link {
-    label: string;
-    url: string;
-}
-
-interface Entry {
-    _id: Binary;
-    title: string;
-    markdownContent: string;
-    links: Link[];
-    subEntries: Binary[];
-}
-interface MappedEntry {
-    id: string;
-    title: string;
-    markdownContent: string;
-    links: Link[];
-    subEntries: string[];
-}
-interface MappedEntryWithSubEntries {
-    id: string;
-    title: string;
-    markdownContent: string;
-    links: Link[];
-    subEntries: MappedEntryWithSubEntries[];
-}
-export type { MappedEntryWithSubEntries as FullEntry };
+import type { BaseEntry as Entry, MappedEntry, MappedEntryTree } from './_types';
 
 export async function getMainEntry(db: Db, uuid: string) {
     const result = await db
@@ -107,7 +80,7 @@ export async function getMainEntry(db: Db, uuid: string) {
     );
     const subEntries = keyBy(subEntriesArray, 'id');
 
-    function mapSubEntries(thisEntry: MappedEntry): MappedEntryWithSubEntries {
+    function mapSubEntries(thisEntry: MappedEntry): MappedEntryTree {
         return {
             ...thisEntry,
             subEntries: thisEntry.subEntries.map(uuid => mapSubEntries(subEntries[uuid]))
