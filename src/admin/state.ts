@@ -6,8 +6,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import { Entry, Link, MappedEntry } from '../api/db/getters/_types';
-import type { ADMIN_DATA_GET_TYPE } from '../pages/api/admin';
-import { Api, ADMIN_DATA_POST_TYPE_ENTRY } from './api';
+import { Api, ADMIN_DATA_GET_RETURN, ADMIN_DATA_POST_RETURN } from './api';
 
 export enum SESSION_STATE {
     UNKNOWN,
@@ -44,7 +43,7 @@ async function handleError<R>(
 }
 
 export const getData = createAsyncThunk<
-    ADMIN_DATA_GET_TYPE,
+    ADMIN_DATA_GET_RETURN,
     void,
     { rejectValue: { state: SESSION_STATE; reason: string } }
 >('getData', async (_arg, { rejectWithValue }) => {
@@ -78,29 +77,32 @@ export const logIn = createAsyncThunk<
 });
 
 export const saveEntry = createAsyncThunk<
-    [EntryWithLinksWithIds],
-    EntryWithLinksWithIds,
+    ADMIN_DATA_POST_RETURN,
+    { entry: EntryWithLinksWithIds; parent: string | null },
     { rejectValue: { state: SESSION_STATE; reason: string } }
->('saveEntry', async (entry, { rejectWithValue }) => {
-    const saveResult = await Api.saveEntry({
-        id: entry.id,
-        title: entry.title,
-        markdownContent: entry.markdownContent,
-        links: entry.links.map<Link>(_pick(['label', 'url'])),
-        subEntries: entry.subEntries
-    } as ADMIN_DATA_POST_TYPE_ENTRY);
+>('saveEntry', async ({ entry, parent }, { rejectWithValue }) => {
+    const saveResult = await Api.saveEntry(
+        {
+            id: entry.id,
+            title: entry.title,
+            markdownContent: entry.markdownContent,
+            links: entry.links.map<Link>(_pick(['label', 'url'])),
+            subEntries: entry.subEntries
+        },
+        parent
+    );
 
     switch (saveResult.status) {
         case 200:
             toast.success('Zapisano!');
-            return [entry];
+            return saveResult.json();
         default:
             return handleError(saveResult, rejectWithValue);
     }
 });
 
-type Changelog = ADMIN_DATA_GET_TYPE['changelog'];
-type MainEntries = ADMIN_DATA_GET_TYPE['mainEntries'];
+type Changelog = ADMIN_DATA_GET_RETURN['changelog'];
+type MainEntries = ADMIN_DATA_GET_RETURN['mainEntries'];
 export interface LinkWithId extends Link {
     id: string;
 }
@@ -169,14 +171,21 @@ const slice = createSlice({
                 }));
             })
             .addMatcher(isUpdateEntriesAction, (state, action) => {
-                const entries = action.payload;
+                const { entries, mainEntries } = action.payload;
 
-                entries.forEach(entry => {
-                    state.entries[entry.id] = {
-                        ...state.entries[entry.id],
-                        ...entry
-                    };
-                });
+                state.entries = {
+                    ...state.entries,
+                    ...mapValues(entries, entry => ({
+                        ...entry,
+                        links: entry.links.map(link => ({
+                            id: nanoid(),
+                            ...link
+                        }))
+                    }))
+                };
+                if (mainEntries) {
+                    state.mainEntries = mainEntries;
+                }
             })
             .addMatcher(isMyRejectedAction, (state, action) => {
                 state.sessionState = action.payload?.state || SESSION_STATE.ERROR;

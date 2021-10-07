@@ -1,4 +1,4 @@
-import { ADMIN_DATA_POST_TYPE_ENTRY } from '../pages/api/admin';
+import { ADMIN_DATA_POST_ARG_ENTRY, ADMIN_DATA_POST_ARG_ENTRY_PARENT } from '../pages/api/admin';
 
 export class Api {
     private static get(url: string) {
@@ -15,8 +15,8 @@ export class Api {
         return this.get('/admin');
     }
 
-    static saveEntry(entry: ADMIN_DATA_POST_TYPE_ENTRY) {
-        return this.post(`/admin`, { entry });
+    static saveEntry(entry: ADMIN_DATA_POST_ARG_ENTRY, parent: ADMIN_DATA_POST_ARG_ENTRY_PARENT) {
+        return this.post(`/admin`, { entry, parent });
     }
 
     static logIn(username: string, password: string) {
@@ -24,4 +24,10 @@ export class Api {
     }
 }
 
-export type { ADMIN_DATA_POST_TYPE_ENTRY };
+export type {
+    ADMIN_DATA_ERROR_RETURN,
+    ADMIN_DATA_GET_RETURN,
+    ADMIN_DATA_POST_ARG_ENTRY,
+    ADMIN_DATA_POST_ARG_ENTRY_PARENT,
+    ADMIN_DATA_POST_RETURN
+} from '../pages/api/admin';

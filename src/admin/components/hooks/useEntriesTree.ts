@@ -16,8 +16,8 @@ export function makeTree(
         used[id] = true;
         return {
             id,
-            title: entries[id].title,
-            subEntries: entries[id].subEntries.map(mapIdToEntry)
+            title: entries[id]?.title ?? 'BROKEN ENTRY',
+            subEntries: entries[id]?.subEntries.map(mapIdToEntry) ?? []
         };
     };
 

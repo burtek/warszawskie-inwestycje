@@ -1,12 +1,16 @@
 import { useCallback, useMemo } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { toast } from 'react-toastify';
+import { NIL as NIL_UUID } from 'uuid';
 import { saveEntry, useAppDispatch } from '../state';
 import { Button, FormSection, MDEditor } from './adminScreen.components';
 import { AdminScreenDraggableLink } from './AdminScreenDraggableLink';
 import { AdminScreenDraggableSubentry } from './AdminScreenDraggableSubentry';
 import { EntryTree } from './EntryTree';
 import {
+    MAIN_ENTRY_ID,
     MappedOrphanEntry,
+    NULL_ENTRY_ID,
     useAdminScreenData,
     useAdminScreenForm,
     useButtonCallback,
@@ -30,6 +34,7 @@ export function AdminScreen() {
         markdownContent: [markdownContent, { onChangeMarkdownContent }],
         links: [links, { onAddLink, onUpdateLink, onRemoveLink, onLinkDragEnd }],
         subEntries: [subEntries, { onSubentryDragEnd }],
+        parent: [parent, { onChangeParent }],
         setFormValues
     } = useAdminScreenForm();
     const {
@@ -41,18 +46,23 @@ export function AdminScreen() {
     } = useAdminScreenData(setFormValues);
 
     const onSubmit = useCallback(() => {
-        if (currentEntry) {
+        if (currentEntry && parent !== NULL_ENTRY_ID) {
             dispatch(
                 saveEntry({
-                    ...currentEntry,
-                    title,
-                    markdownContent: markdownContent ?? '',
-                    links,
-                    subEntries
+                    entry: {
+                        ...currentEntry,
+                        title,
+                        markdownContent: markdownContent ?? '',
+                        links,
+                        subEntries
+                    },
+                    parent: parent === MAIN_ENTRY_ID ? NIL_UUID : parent
                 })
             );
+        } else {
+            toast.error('Nadsekcja musi być wybrana!');
         }
-    }, [currentEntry, dispatch, links, markdownContent, subEntries, title]);
+    }, [currentEntry, dispatch, links, markdownContent, parent, subEntries, title]);
     const onReset = useButtonCallback(() => setFormValues(currentEntry), [currentEntry, setFormValues]);
     const onCancel = useButtonCallback(() => setCurrentId(null), [setCurrentId]);
 
@@ -91,6 +101,8 @@ export function AdminScreen() {
         [parentSelectOptionsArray]
     );
 
+    const parentId = parent ?? entryParentId;
+
     return (
         <div className="container">
             <div className="columns">
@@ -123,9 +135,11 @@ export function AdminScreen() {
                                         className="form-select"
                                         id="entry-parent"
                                         placeholder="Nadsekcja"
-                                        value={entryParentId}
-                                        onChange={() => alert('Not implemented')}
-                                        disabled={false}>
+                                        value={parentId}
+                                        onChange={onChangeParent}>
+                                        {parentId === NULL_ENTRY_ID && (
+                                            <option value={NULL_ENTRY_ID}>:: Nieprzypisany (niewidoczny) ::</option>
+                                        )}
                                         {parentSelectOptions}
                                     </select>
                                 </FormSection>
@@ -158,7 +172,13 @@ export function AdminScreen() {
                                 )}
                             </FormSection>
                             <div className="btn-group btn-group-block pt-2">
-                                <Button icon="check" onClick={onSubmit} primary text="Zapisz" />
+                                <Button
+                                    icon="check"
+                                    onClick={onSubmit}
+                                    primary
+                                    text="Zapisz"
+                                    disabled={parentId === NULL_ENTRY_ID}
+                                />
                                 <Button icon="refresh" onClick={onReset} text="Przywróć wartości oryginalne" />
                                 <Button icon="cross" onClick={onCancel} text="Anuluj" />
                             </div>

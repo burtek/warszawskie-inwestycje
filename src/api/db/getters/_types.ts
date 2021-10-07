@@ -3,6 +3,10 @@ import _fp from 'lodash/fp';
 import { uuidToString } from '../utils';
 import type { Binary } from 'mongodb';
 
+export interface RawChangelogItem {
+    date: Date;
+    description: string;
+}
 export interface ChangelogItem {
     date: string;
     description: string;

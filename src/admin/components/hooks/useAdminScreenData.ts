@@ -13,7 +13,6 @@ const mapSelectOptions = (entry: MappedEntry, level = 0): MappedOrphanEntry[] =>
 ];
 const mapSelectOption = (entry: MappedEntry) => mapSelectOptions(entry);
 
-const nullOption: MappedOrphanEntry = { id: NULL_ENTRY_ID, title: ':: Nieprzypisany (niewidoczny) ::' };
 const mainEntryOption: MappedOrphanEntry = { id: MAIN_ENTRY_ID, title: ':: Strona Główna ::' };
 
 export const useAdminScreenData = (setValues: (entry: EntryWithLinksWithIds | null) => void) => {
@@ -44,13 +43,8 @@ export const useAdminScreenData = (setValues: (entry: EntryWithLinksWithIds | nu
     );
 
     const parentSelectOptions = useMemo(
-        () => [
-            ...(entryParentId === NULL_ENTRY_ID ? [nullOption] : []),
-            mainEntryOption,
-            ...treeEntries.flatMap(mapSelectOption),
-            ...orphanEntries
-        ],
-        [entryParentId, orphanEntries, treeEntries]
+        () => [mainEntryOption, ...treeEntries.flatMap(mapSelectOption), ...orphanEntries],
+        [orphanEntries, treeEntries]
     );
 
     return { entries, currentEntry, entryParentId, setCurrentId, parentSelectOptions };

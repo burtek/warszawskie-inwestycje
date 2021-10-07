@@ -1,14 +1,19 @@
 // import { MongoClient } from 'mongodb';
 import dayjs from 'dayjs';
-import { Binary, Db, MongoClient } from 'mongodb';
+import { Binary, ClientSession, Db, MongoClient } from 'mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Session, withIronSession } from 'next-iron-session';
 import { getDbUrl } from './dbUrl';
 // import { getDbUrl } from './dbUrl';
 
 export type NextIronRequest = NextApiRequest & { session: Session };
-export type NextIronHandler = (req: NextIronRequest, res: NextApiResponse) => void | Promise<void>;
-export type NextDbIronHandler = (req: NextIronRequest, res: NextApiResponse, db: Db) => void | Promise<void>;
+export type NextIronHandler<Res = any> = (req: NextIronRequest, res: NextApiResponse<Res>) => void | Promise<void>;
+export type NextDbIronHandler<Res = any> = (
+    req: NextIronRequest,
+    res: NextApiResponse<Res>,
+    session: ClientSession,
+    db: Db
+) => void | Promise<void>;
 
 export const SESSION_KEY_USER = 'user';
 export const SESSION_KEY_VERIFY = 'lastVerify';
@@ -31,7 +36,7 @@ export interface DbUser {
     };
 }
 
-export const withSession = (handler: NextIronHandler) =>
+export const withSession = <Res = any>(handler: NextIronHandler<Res>) =>
     withIronSession(handler, {
         password: process.env.COOKIE_PASS as string,
         cookieName: process.env.COOKIE_NAME as string,
@@ -43,7 +48,7 @@ export const withSession = (handler: NextIronHandler) =>
         ttl: SESSION_MAX_AGE_MINS * 60
     });
 
-export const withAuthorizedSession = (handler: NextDbIronHandler) =>
+export const withAuthorizedSession = <Res = any>(handler: NextDbIronHandler<Res>) =>
     withSession(async (req, res) => {
         res.setHeader('Cache-Control', 'no-store, max-age=0');
 
@@ -56,8 +61,10 @@ export const withAuthorizedSession = (handler: NextDbIronHandler) =>
             return;
         }
 
+        let client: MongoClient | undefined;
+        let session: ClientSession | undefined;
         try {
-            const client = new MongoClient(
+            client = new MongoClient(
                 getDbUrl(
                     process.env.DB_ADMIN_USER as string,
                     process.env.DB_ADMIN_PASS as string,
@@ -67,8 +74,16 @@ export const withAuthorizedSession = (handler: NextDbIronHandler) =>
             );
             await client.connect();
 
-            await handler(req, res, client.db('wi'));
+            session = client.startSession();
+            const wiDb = client.db('wi');
+
+            await session.withTransaction(async session => handler(req, res, session, wiDb));
         } catch (error) {
-            res.status(500).json({ error });
+            if (!res.headersSent) {
+                res.status(500).json({ error });
+            }
+        } finally {
+            session?.endSession();
+            client?.close();
         }
     });

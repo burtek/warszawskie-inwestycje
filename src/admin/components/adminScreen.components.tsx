@@ -24,13 +24,14 @@ export const FormSection: FC<{ className?: string; id: string; label: string }> 
 );
 FormSection.displayName = 'AdminScreenFormSection';
 
-export const Button: FC<{ icon: string; onClick: MouseEventHandler; primary?: boolean; text: string }> = ({
-    icon,
-    onClick,
-    primary = false,
-    text
-}) => (
-    <button className={`btn ${primary ? 'btn-primary' : ''}`} onClick={onClick}>
+export const Button: FC<{
+    disabled?: boolean;
+    icon: string;
+    onClick: MouseEventHandler;
+    primary?: boolean;
+    text: string;
+}> = ({ disabled = false, icon, onClick, primary = false, text }) => (
+    <button className={`btn ${primary ? 'btn-primary' : ''}`} disabled={disabled} onClick={onClick}>
         <i className={`icon icon-${icon} mr-1`} />
         {text}
     </button>

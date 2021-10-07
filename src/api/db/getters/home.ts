@@ -1,5 +1,6 @@
 import type { Binary, Db } from 'mongodb';
 import { uuidToString } from '../utils';
+import { getMain } from './_collections';
 import type { ChangelogItem, HomepageEntry } from './_types';
 
 interface AggEntry {
@@ -69,7 +70,7 @@ export async function getHomeData(db: Db) {
 }
 
 export async function getMainEntryIds(db: Db) {
-    const entry = await db.collection<{ type: 'main'; data: Binary[] }>('main').findOne({ type: 'main' });
+    const entry = await getMain(db, 'main');
 
     return entry?.data.map(uuidToString);
 }

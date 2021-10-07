@@ -1,14 +1,49 @@
 import keyBy from 'lodash/keyBy';
-import type { Binary, Db } from 'mongodb';
+import type { Db } from 'mongodb';
 import UUID from 'uuid-mongodb';
 import { uuidToString } from '../utils';
+import { getMain } from './_collections';
 import type { BaseEntry as Entry, MappedEntry, MappedEntryTree } from './_types';
 
 export async function getMainEntry(db: Db, uuid: string) {
-    const result = await db
-        .collection('main')
+    const [rawEntry] = await getRawData(db, uuid);
+
+    if (!rawEntry) {
+        return null;
+    }
+
+    const { lastUpdated, ...entries } = rawEntry;
+
+    const [entry, ...subEntriesArray] = [entries.entry, ...entries.subEntries].map<MappedEntry>(
+        ({ _id, subEntries, ...thisEntry }) => ({
+            id: uuidToString(_id),
+            ...thisEntry,
+            subEntries: subEntries.map(uuidToString)
+        })
+    );
+    const subEntries = keyBy(subEntriesArray, 'id');
+
+    function mapSubEntries(thisEntry: MappedEntry): MappedEntryTree {
+        return {
+            ...thisEntry,
+            subEntries: thisEntry.subEntries.map(uuid => mapSubEntries(subEntries[uuid]))
+        };
+    }
+
+    return {
+        entry: mapSubEntries(entry),
+        lastUpdated
+    };
+}
+
+function getRawData(db: Db, uuid: string) {
+    return getMain(db)
         .aggregate<{ entry: Entry; subEntries: Entry[]; lastUpdated: string } | undefined>([
-            { $match: { type: 'main' } },
+            {
+                $match: {
+                    type: 'main'
+                }
+            },
             { $unwind: { path: '$data' } },
             {
                 $project: {
@@ -64,31 +99,4 @@ export async function getMainEntry(db: Db, uuid: string) {
             }
         ])
         .toArray();
-
-    if (!result[0]) {
-        return null;
-    }
-
-    const [{ lastUpdated, ...entries }] = result;
-
-    const [entry, ...subEntriesArray] = [entries.entry, ...entries.subEntries].map<MappedEntry>(
-        ({ _id, ...thisEntry }) => ({
-            ...thisEntry,
-            id: uuidToString(_id),
-            subEntries: thisEntry.subEntries.map(uuidToString)
-        })
-    );
-    const subEntries = keyBy(subEntriesArray, 'id');
-
-    function mapSubEntries(thisEntry: MappedEntry): MappedEntryTree {
-        return {
-            ...thisEntry,
-            subEntries: thisEntry.subEntries.map(uuid => mapSubEntries(subEntries[uuid]))
-        };
-    }
-
-    return {
-        entry: mapSubEntries(entry),
-        lastUpdated
-    };
 }

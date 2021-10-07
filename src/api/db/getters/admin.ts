@@ -1,10 +1,10 @@
 import type { Db } from 'mongodb';
 import { uuidToString } from '../utils';
-import { ChangelogItem, Entry, MainEntryItem, mapEntries } from './_types';
+import { getEntries, getMain } from './_collections';
+import { ChangelogItem, MainEntryItem, mapEntries } from './_types';
 
-export async function getAdminData(db: Db) {
-    const [{ changelog, mainEntries }] = await db
-        .collection('main')
+function getDataFromMain(db: Db) {
+    return getMain(db)
         .aggregate<{ changelog: ChangelogItem[]; mainEntries: MainEntryItem[] }>([
             {
                 $facet: {
@@ -33,12 +33,17 @@ export async function getAdminData(db: Db) {
             }
         ])
         .toArray();
+}
 
-    const entries = mapEntries(await db.collection<Entry>('entries').find().toArray());
+export async function getAdminData(db: Db) {
+    const [[{ changelog, mainEntries }], entries] = await Promise.all([
+        getDataFromMain(db),
+        getEntries(db).find().toArray()
+    ]);
 
     return {
         changelog,
-        entries,
+        entries: mapEntries(entries),
         mainEntries: mainEntries.map(({ id }) => uuidToString(id))
     };
 }

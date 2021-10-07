@@ -6,6 +6,5 @@
 
 ## TODO
 
--   adding entries
--   changing parent entry
 -   adding images (S3? MongoDB? GDrive?)
+-   change order on home page
