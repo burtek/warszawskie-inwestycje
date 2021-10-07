@@ -6,7 +6,7 @@ import { EntryHero } from '../../components/EntryHero';
 import { EntryLink, EntryLinkList } from '../../components/EntryLinkList';
 import { NavBar } from '../../components/NavBar';
 import { NavSideBar } from '../../components/NavSideBar';
-import { DB, Types } from '../../db';
+import { DB, Types } from '../../api/db';
 import type { StaticProps as AppStaticProps } from '../_app';
 
 function renderMD(markdownContent: string) {
@@ -15,7 +15,7 @@ function renderMD(markdownContent: string) {
 renderMD.components = { a: EntryLink };
 
 function mapEntry(
-    { id, title, links, markdownContent, subEntries }: Types.FullEntry,
+    { id, title, links, markdownContent, subEntries }: Types.MappedEntryTree,
     index: number,
     level: number = 1
 ) {
@@ -78,7 +78,7 @@ export const getStaticProps = async ({ params: { id } = {} }: GetStaticPropsCont
 
     let error = false;
     let navbarEntries: Types.NavbarEntry[] = [];
-    let entry: Types.FullEntry | null = null;
+    let entry: Types.MappedEntryTree | null = null;
     let lastUpdated: string | null = null;
 
     if (typeof id === 'string' && id) {
@@ -122,7 +122,7 @@ export const getStaticProps = async ({ params: { id } = {} }: GetStaticPropsCont
                       buildDate: string;
                       error: false;
                       navbarEntries: Types.NavbarEntry[];
-                      entry: Types.FullEntry;
+                      entry: Types.MappedEntryTree;
                       lastUpdated: string;
                   },
             revalidate
@@ -138,7 +138,14 @@ export const getStaticProps = async ({ params: { id } = {} }: GetStaticPropsCont
     } as { redirect: Redirect; revalidate: number };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => ({
-    paths: (await DB.getMainEntryIds())?.map(id => ({ params: { id } })) ?? [],
-    fallback: 'blocking'
-});
+export const getStaticPaths: GetStaticPaths = async () => {
+    let paths: Array<{ params: { id: string } }> = [];
+    try {
+        paths = (await DB.getMainEntryIds())?.map(id => ({ params: { id } })) ?? [];
+    } catch {}
+
+    return {
+        paths,
+        fallback: 'blocking'
+    };
+};
