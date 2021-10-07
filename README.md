@@ -8,3 +8,4 @@
 
 -   adding images (S3? MongoDB? GDrive?)
 -   change order on home page
+-   cleanup API/DB ?
