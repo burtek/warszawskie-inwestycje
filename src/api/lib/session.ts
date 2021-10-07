@@ -68,8 +68,7 @@ export const withAuthorizedSession = <Res = any>(handler: NextDbIronHandler<Res>
                 getDbUrl(
                     process.env.DB_ADMIN_USER as string,
                     process.env.DB_ADMIN_PASS as string,
-                    process.env.DB_DB as string,
-                    process.env.DB_HOST as string
+                    process.env.DB_DB as string
                 ),
                 { maxIdleTimeMS: 1000 }
             );

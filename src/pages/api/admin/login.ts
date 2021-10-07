@@ -30,8 +30,7 @@ export default withSession(async (req, res) => {
             getDbUrl(
                 process.env.DB_ADMIN_USER as string,
                 process.env.DB_ADMIN_PASS as string,
-                process.env.DB_ADMIN_DB as string,
-                process.env.DB_HOST as string
+                process.env.DB_ADMIN_DB as string
             ),
             { maxIdleTimeMS: 1000 }
         );

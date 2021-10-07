@@ -138,7 +138,14 @@ export const getStaticProps = async ({ params: { id } = {} }: GetStaticPropsCont
     } as { redirect: Redirect; revalidate: number };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => ({
-    paths: (await DB.getMainEntryIds())?.map(id => ({ params: { id } })) ?? [],
-    fallback: 'blocking'
-});
+export const getStaticPaths: GetStaticPaths = async () => {
+    let paths: Array<{ params: { id: string } }> = [];
+    try {
+        paths = (await DB.getMainEntryIds())?.map(id => ({ params: { id } })) ?? [];
+    } catch {}
+
+    return {
+        paths,
+        fallback: 'blocking'
+    };
+};
