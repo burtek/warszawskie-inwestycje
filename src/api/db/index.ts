@@ -9,7 +9,7 @@ export class DB {
     private static dbUri = getDbUrl(
         process.env.DB_USER as string,
         process.env.DB_PASS as string,
-        process.env.DB_HOST as string
+        process.env.DB_DB as string
     );
     private static client = new MongoClient(DB.dbUri, { maxIdleTimeMS: 1000 });
 
